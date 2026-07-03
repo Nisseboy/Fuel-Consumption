@@ -2,6 +2,7 @@ let navbar = document.getElementById("navbar");
 let content = document.getElementById("content");
 let bikeName = document.getElementById("bikeName");
 let newData = document.getElementById("newData");
+let datePopup = document.getElementById("datePopup");
 
 let currentBike;
 
@@ -92,7 +93,7 @@ function renderBike(bike) {
       createElement("td", {innerText: pt.dist, onclick: () => {let res = prompt("Change Odo (km)", pt.dist); if (!res) return; pt.dist = res; renderBike(bike); saveData();}}),
       createElement("td", {innerText: pt.liters, onclick: () => {let res = prompt("Change Liters", pt.liters); if (!res) return; pt.liters = res; renderBike(bike); saveData();}}),
       createElement("td", {innerText: consumption ? consumption.toFixed(2) : "N/A"}),
-      createElement("td", {innerText: pt.timestamp ? Intl.DateTimeFormat().format(pt.timestamp) : ""}),
+      createElement("td", {innerText: pt.timestamp ? Intl.DateTimeFormat().format(pt.timestamp) : "", onclick: () => {openDatePopup(value => {pt.timestamp = new Date(value).getTime(); renderBike(bike); saveData(); }); }}),
     ]);
     pts.push(elem);
 
@@ -116,4 +117,20 @@ function createElement(type, props = {}, children = []) {
 
   for (let c of children) e.appendChild(c);
   return e;
+}
+
+let popupF;
+function openDatePopup(callback) {
+  datePopup.style.display = "grid";
+  
+  popupF = function(e) {
+    callback(e.target.value);
+  }
+
+  datePopup.children[0].addEventListener("change", popupF)
+}
+
+function closeDatePopup() {  
+  datePopup.style.display = "none";
+  datePopup.children[0].removeEventListener("change", popupF)
 }
