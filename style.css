@@ -83,3 +83,18 @@ body {
 
   background-color: #0003;
 }
+
+#navbar {
+  margin-left: 0.6rem;
+  margin-right: 0.2rem;
+  display: flex;
+  gap: 0.2rem;
+}
+
+.removeDataButton {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+
+  display: none;
+}

@@ -13,7 +13,10 @@ for (let b of bikes) {
 if (bikes.length != 0) renderBike(bikes[0]);
 
 function createBike() {
-  let bike = {name: "Name", pts: []};
+  let name = prompt("Name");
+  if (!name) return;
+
+  let bike = {name, pts: []};
   bikes.push(bike);
   saveData();
   createBikeElem(bike);
@@ -22,31 +25,9 @@ function createBikeElem(b) {
   let elem = createElement("button", {innerText: b.name, onclick: () => {
     renderBike(b);
   }});
-  elem.style.marginRight = "0.2rem";
 
   b.nameElem = elem;
   navbar.appendChild(elem);
-}
-
-function renameBike() {
-  let newName = prompt("Rename Vehicle");
-
-  if (!newName) return;
-
-  currentBike.name = newName;
-  currentBike.nameElem.innerText = currentBike.name;
-  saveData();
-
-  renderBike(currentBike);
-}
-function removeBike() {
-  if (!confirm(`Remove ${currentBike.name}?`)) return;
-
-  bikes.splice(bikes.indexOf(currentBike), 1);
-  currentBike.nameElem.remove();
-  saveData();  
-
-  renderBike(bikes[0]);
 }
 
 function addData() {
@@ -65,10 +46,11 @@ function calculateConsumption(pt, lastPt) {
 
 
 
-function renderBike(bike) {  
+function renderBike(bike, editMode = false) {  
   currentBike = bike;
 
   bikeName.innerText = bike.name;
+  newData.style.display = "flex";
 
   content.replaceChildren();
 
@@ -89,11 +71,17 @@ function renderBike(bike) {
     let consumption = 0;
     if (lastPt) consumption = calculateConsumption(pt, lastPt);
 
-    let elem = createElement("tr", {}, [
+    let elem = createElement("tr", {style: "position: relative;"}, [
       createElement("td", {innerText: pt.dist, onclick: () => {let res = prompt("Change Odo (km)", pt.dist); if (!res) return; pt.dist = res; renderBike(bike); saveData();}}),
       createElement("td", {innerText: pt.liters, onclick: () => {let res = prompt("Change Liters", pt.liters); if (!res) return; pt.liters = res; renderBike(bike); saveData();}}),
       createElement("td", {innerText: consumption ? consumption.toFixed(2) : "N/A"}),
       createElement("td", {innerText: pt.timestamp ? Intl.DateTimeFormat().format(pt.timestamp) : "", onclick: () => {openDatePopup(value => {pt.timestamp = new Date(value).getTime(); renderBike(bike); saveData(); }); }}),
+      createElement("td", {style: "border-left: none;"}, [
+        createElement("button", {className: "removeDataButton", innerText: "X", onclick: () => {
+          bike.pts.splice(bike.pts.indexOf(pt), 1);
+          renderBike(bike, true);
+        }}),
+      ]),
     ]);
     pts.push(elem);
 
@@ -104,7 +92,45 @@ function renderBike(bike) {
 
   for (let pt of pts) content.appendChild(pt);
 
+  if (editMode) {
+    let xes = document.getElementsByClassName("removeDataButton");
+    for (let x of xes) x.style.display = "block";
+  }
+
   newData.style.width = content.offsetWidth + 'px';
+}
+function renderSettings() {  
+  bikeName.innerText = "Settings";
+
+  content.replaceChildren();
+  newData.style.display = "none";
+
+  
+  let pts = [];
+
+  for (let bike of bikes) {
+    let elem = createElement("tr", {}, [
+      createElement("td", {innerText: bike.name, style: "text-align: start;", onclick: () => {let res = prompt("Rename " + bike.name, bike.name); if (!res) return; bike.name = res; renderSettings(bike); saveData(); bike.nameElem.innerText = res}}),
+      createElement("td", {style: "border-left: none;"}, [
+        createElement("button", {innerText: "X",    onclick: () => {
+          if (!confirm(`Remove ${bike.name}?`)) return;
+
+          bikes.splice(bikes.indexOf(bike), 1);
+          bike.nameElem.remove();
+          saveData();  
+
+          renderSettings();
+        }}),
+        createElement("button", {innerText: "Edit", onclick: () => {
+          renderBike(bike, true);
+        }}),
+      ]),
+    ]);
+    pts.push(elem);
+  }
+  for (let pt of pts) content.appendChild(pt);
+
+  content.appendChild(createElement("button", {innerText: "+", onclick: () => {createBike(); renderSettings()}}));
 }
 
 
