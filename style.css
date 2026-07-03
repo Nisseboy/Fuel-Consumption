@@ -1,3 +1,52 @@
 #content > * {
   margin-top: 0.2rem;
 }
+
+body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#content {
+  font-family: monospace;
+  width: fit-content;
+
+  th, td {
+    border-left: 1px dotted gray;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+
+    text-align: right;
+  }
+
+  th:first-child, td:first-child {
+    border-left: none;
+  }
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  width: fit-content;
+}
+
+#bikeNameHolder {
+  gap: 0;
+}
+#newData {
+  font-family: monospace;
+  gap: 0;
+
+  padding: 0.2rem;
+  background-color: #0001;
+
+  input {
+    font-family: monospace;
+  }
+}
+
+
+.pLeft {
+  margin-left: 0.5rem;
+}

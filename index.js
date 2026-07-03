@@ -1,5 +1,9 @@
 let navbar = document.getElementById("navbar");
 let content = document.getElementById("content");
+let bikeName = document.getElementById("bikeName");
+let newData = document.getElementById("newData");
+
+let currentBike;
 
 let bikes = JSON.parse(localStorage.getItem("fuel-consumption")) || [{name: "Name", pts: []}];
 for (let b of bikes) {
@@ -23,55 +27,79 @@ function createBikeElem(b) {
   navbar.appendChild(elem);
 }
 
+function renameBike() {
+  let newName = prompt("Rename Vehicle");
+
+  if (!newName) return;
+
+  currentBike.name = newName;
+  currentBike.nameElem.innerText = currentBike.name;
+  saveData();
+
+  renderBike(currentBike);
+}
+function removeBike() {
+  if (!confirm(`Remove ${currentBike.name}?`)) return;
+
+  bikes.splice(bikes.indexOf(currentBike), 1);
+  currentBike.nameElem.remove();
+  saveData();  
+
+  renderBike(bikes[0]);
+}
+
+function addData() {
+  let inputs = newData.getElementsByTagName("input");
+
+  let pt = {dist: inputs[0].value, liters: inputs[1].value}
+
+  currentBike.pts.push(pt);
+  saveData();
+  renderBike(currentBike);
+}
+
+function calculateConsumption(pt, lastPt) {
+  return (pt.liters / (pt.dist - lastPt.dist) * 100)
+}
 
 
-function renderBike(bike) {
+
+function renderBike(bike) {  
+  currentBike = bike;
+
+  bikeName.innerText = bike.name;
+
   content.replaceChildren();
 
-  content.appendChild(createElement("div", {}, [
-    createElement("input", {value: bike.name, onchange: e => {
-      bike.name = e.target.value;
-      bike.nameElem.innerText = bike.name;
-      saveData();
-    }}),
 
-    createElement("button", {innerText: "X", onclick: e => {
-      bikes.splice(bikes.indexOf(bike));
-      bike.nameElem.remove();
-      content.replaceChildren();
-      saveData();
-    }})
-  ]));
   
-
   let pts = [];
+
+  let elem = createElement("tr", {}, [
+    createElement("th", {innerText: "Odo (km)"}),
+    createElement("th", {innerText: "Liters"}),
+    createElement("th", {innerText: "L/100km"}),
+  ]);
+  content.appendChild(elem);
+
+  let lastPt;
   for (let pt of bike.pts) {
-    let consumptionElem = createElement("div", {innerText: 0});
-    function updateConsumption() {
-      let idx = bike.pts.indexOf(pt);
-      if (idx == 0) consumptionElem.innerText = "";
-      else consumptionElem.innerText = (pt.liters / (pt.dist - bike.pts[idx - 1].dist) * 100);
-    }
-    updateConsumption();
+    let consumption = 0;
+    if (lastPt) consumption = calculateConsumption(pt, lastPt).toFixed(2);
 
-    let elem = createElement("div", {}, [
-      createElement("input", {value: pt.dist, onchange: e => {pt.dist = parseFloat(e.target.value); updateConsumption(); saveData()}}),
-      createElement("input", {value: pt.liters, onchange: e => {pt.liters = parseFloat(e.target.value); updateConsumption(); saveData()}}),
-      consumptionElem,
+    let elem = createElement("tr", {}, [
+      createElement("td", {innerText: pt.dist, onclick: () => {let res = prompt("Change Odo (km)", pt.dist); if (!res) return; pt.dist = res; renderBike(bike); saveData();}}),
+      createElement("td", {innerText: pt.liters, onclick: () => {let res = prompt("Change Liters", pt.liters); if (!res) return; pt.liters = res; renderBike(bike); saveData();}}),
+      createElement("td", {innerText: consumption || "N/A"}),
     ]);
-    elem.style.display = "flex";
     pts.push(elem);
-  }
-  pts.push(createElement("button", {innerText: "+", onclick: () => {
-    let d = 0;
-    if (bike.pts.length >= 1) d = bike.pts[bike.pts.length - 1].dist + 1;
-    bike.pts.push({dist: d, liters: 5});
-    saveData();
-    renderBike(bike);
-  }}));
 
-  
-  content.appendChild(createElement("div", {}, pts.reverse()));
+    lastPt = pt;
+  }
+
+  pts.reverse();
+
+  for (let pt of pts) content.appendChild(pt);
 }
 
 

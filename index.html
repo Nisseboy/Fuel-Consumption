@@ -9,9 +9,26 @@
 <body>
   <div style="display: flex">
     <div id="navbar"></div>
+
     <button onclick="createBike()">+</button>
   </div>
-  <div id="content"></div>
+
+  
+  <div class="row" id="bikeNameHolder">
+    <b id="bikeName" type="text" onchange="renameBike()"></b>
+    <button class="pLeft" onclick="renameBike()">E</button>
+    <button onclick="removeBike()">X</button>
+  </div>
+
+  <div class="row" id="newData">
+    <input type="number">
+    km
+    <input class="pLeft" type="number">
+    L
+
+    <button class="pLeft" onclick="addData()">+</button>
+  </div>
+  <table id="content"></table>
 
   <script src="index.js"></script>
 </body>
