@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 #content > * {
   margin-top: 0.2rem;
 }
@@ -18,10 +22,15 @@ body {
     padding-left: 0.5rem;
 
     text-align: right;
-  }
+  };
 
   th:first-child, td:first-child {
     border-left: none;
+    padding-left: 0;
+  };
+
+  th:last-child, td:last-child {
+    padding-right: 0;
   }
 }
 
@@ -41,9 +50,18 @@ body {
   padding: 0.2rem;
   background-color: #0001;
 
+  width: auto;
+
   input {
     font-family: monospace;
-  }
+    min-width: 0;
+    padding: 0;
+  };
+
+  div {
+    display: grid;
+    place-items: center;
+  };
 }
 
 

@@ -103,6 +103,8 @@ function renderBike(bike) {
   pts.reverse();
 
   for (let pt of pts) content.appendChild(pt);
+
+  newData.style.width = content.offsetWidth + 'px';
 }
 
 
