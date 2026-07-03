@@ -7,10 +7,14 @@ let datePopup = document.getElementById("datePopup");
 let currentBike;
 
 let bikes = JSON.parse(localStorage.getItem("fuel-consumption")) || [{name: "Name", pts: []}];
+let lastTab = localStorage.getItem("fuel-consumption-last-tab");
 for (let b of bikes) {
   createBikeElem(b);
 }
-if (bikes.length != 0) renderBike(bikes[0]);
+if (lastTab) {
+  for (let b of bikes) if (b.name == lastTab) renderBike(b);
+}
+if (bikes.length != 0 && !currentBike) renderBike(bikes[0]);
 
 function createBike() {
   let name = prompt("Name");
@@ -80,6 +84,7 @@ function renderBike(bike, editMode = false) {
         createElement("button", {className: "removeDataButton", innerText: "X", onclick: () => {
           bike.pts.splice(bike.pts.indexOf(pt), 1);
           renderBike(bike, true);
+          saveData();
         }}),
       ]),
     ]);
@@ -98,6 +103,8 @@ function renderBike(bike, editMode = false) {
   }
 
   newData.style.width = content.offsetWidth + 'px';
+
+  localStorage.setItem("fuel-consumption-last-tab", bike.name);
 }
 function renderSettings() {  
   bikeName.innerText = "Settings";
