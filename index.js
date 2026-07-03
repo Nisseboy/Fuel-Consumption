@@ -51,7 +51,7 @@ function removeBike() {
 function addData() {
   let inputs = newData.getElementsByTagName("input");
 
-  let pt = {dist: inputs[0].value, liters: inputs[1].value}
+  let pt = {dist: inputs[0].value, liters: inputs[1].value, timestamp: Date.now()}
 
   currentBike.pts.push(pt);
   saveData();
@@ -59,7 +59,7 @@ function addData() {
 }
 
 function calculateConsumption(pt, lastPt) {
-  return (pt.liters / (pt.dist - lastPt.dist) * 100)
+  return Math.max((pt.liters / (pt.dist - lastPt.dist) * 100), 0);
 }
 
 
@@ -79,18 +79,20 @@ function renderBike(bike) {
     createElement("th", {innerText: "Odo (km)"}),
     createElement("th", {innerText: "Liters"}),
     createElement("th", {innerText: "L/100km"}),
+    createElement("th", {innerText: "Date"}),
   ]);
   content.appendChild(elem);
 
   let lastPt;
   for (let pt of bike.pts) {
     let consumption = 0;
-    if (lastPt) consumption = calculateConsumption(pt, lastPt).toFixed(2);
+    if (lastPt) consumption = calculateConsumption(pt, lastPt);
 
     let elem = createElement("tr", {}, [
       createElement("td", {innerText: pt.dist, onclick: () => {let res = prompt("Change Odo (km)", pt.dist); if (!res) return; pt.dist = res; renderBike(bike); saveData();}}),
       createElement("td", {innerText: pt.liters, onclick: () => {let res = prompt("Change Liters", pt.liters); if (!res) return; pt.liters = res; renderBike(bike); saveData();}}),
-      createElement("td", {innerText: consumption || "N/A"}),
+      createElement("td", {innerText: consumption ? consumption.toFixed(2) : "N/A"}),
+      createElement("td", {innerText: pt.timestamp ? Intl.DateTimeFormat().format(pt.timestamp) : ""}),
     ]);
     pts.push(elem);
 
