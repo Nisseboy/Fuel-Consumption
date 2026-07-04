@@ -77,7 +77,7 @@ function renderBike(bike, editMode = false) {
 
     let elem = createElement("tr", {style: "position: relative;"}, [
       createElement("td", {innerText: pt.dist, onclick: () => {let res = prompt("Change Odo (km)", pt.dist); if (!res) return; pt.dist = res; renderBike(bike); saveData();}}),
-      createElement("td", {innerText: pt.liters, onclick: () => {let res = prompt("Change Liters", pt.liters); if (!res) return; pt.liters = res; renderBike(bike); saveData();}}),
+      createElement("td", {innerText: pt.liters.toFixed(2), onclick: () => {let res = prompt("Change Liters", pt.liters); if (!res) return; pt.liters = res; renderBike(bike); saveData();}}),
       createElement("td", {innerText: consumption ? consumption.toFixed(2) : "N/A"}),
       createElement("td", {innerText: pt.timestamp ? Intl.DateTimeFormat().format(pt.timestamp) : "", onclick: () => {openDatePopup(value => {pt.timestamp = new Date(value).getTime(); renderBike(bike); saveData(); }); }}),
       createElement("td", {style: "border-left: none;"}, [
