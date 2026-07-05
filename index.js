@@ -77,7 +77,7 @@ function renderBike(bike, editMode = false) {
 
     let elem = createElement("tr", {style: "position: relative;"}, [
       createElement("td", {innerText: pt.dist, onclick: () => {let res = prompt("Change Odo (km)", pt.dist); if (!res) return; pt.dist = res; renderBike(bike); saveData();}}),
-      createElement("td", {innerText: pt.liters.toFixed(2), onclick: () => {let res = prompt("Change Liters", pt.liters); if (!res) return; pt.liters = res; renderBike(bike); saveData();}}),
+      createElement("td", {innerText: parseFloat(pt.liters || "0")?.toFixed(2), onclick: () => {let res = prompt("Change Liters", pt.liters); if (!res) return; pt.liters = res; renderBike(bike); saveData();}}),
       createElement("td", {innerText: consumption ? consumption.toFixed(2) : "N/A"}),
       createElement("td", {innerText: pt.timestamp ? Intl.DateTimeFormat().format(pt.timestamp) : "", onclick: () => {openDatePopup(value => {pt.timestamp = new Date(value).getTime(); renderBike(bike); saveData(); }); }}),
       createElement("td", {style: "border-left: none;"}, [
@@ -131,6 +131,13 @@ function renderSettings() {
         createElement("button", {innerText: "Edit", onclick: () => {
           renderBike(bike, true);
         }}),
+        createElement("button", {innerText: "Export to Clipboard", onclick: () => {
+          navigator.clipboard.writeText(JSON.stringify(bike));
+          alert("Copied");
+        }}),
+        createElement("button", {innerText: "Export to File", onclick: () => {
+          download(JSON.stringify(bike), bike.name + ".json");
+        }}),
       ]),
     ]);
     pts.push(elem);
@@ -138,8 +145,35 @@ function renderSettings() {
   for (let pt of pts) content.appendChild(pt);
 
   content.appendChild(createElement("button", {innerText: "+", onclick: () => {createBike(); renderSettings()}}));
+
+  content.appendChild(createElement("button", {innerText: "Export all to Clipboard", onclick: async () => {
+    navigator.clipboard.writeText(JSON.stringify(bikes));
+    alert("Copied");
+  }}));
+
+  content.appendChild(createElement("button", {innerText: "Import from Clipboard", onclick: async () => {
+    let data = await navigator.clipboard.readText();
+
+    if (!data) return;
+    
+    data = JSON.parse(data);
+
+    importData(data);
+  }}));
 }
 
+
+function importData(data) {
+  if (data.name) data = [data];
+
+  for (let d of data) {
+    bikes.push(d);
+    createBikeElem(d);
+  }
+
+  saveData();
+  renderSettings();
+}
 
 
 function saveData() {
@@ -168,4 +202,23 @@ function openDatePopup(callback) {
 function closeDatePopup() {  
   datePopup.style.display = "none";
   datePopup.children[0].removeEventListener("change", popupF)
+}
+
+
+function download(data, filename) {
+    var file = new Blob([data]);
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else { // Others
+        var a = document.createElement("a"),
+                url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+        }, 0); 
+    }
 }
