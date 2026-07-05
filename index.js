@@ -131,11 +131,11 @@ function renderSettings() {
         createElement("button", {innerText: "Edit", onclick: () => {
           renderBike(bike, true);
         }}),
-        createElement("button", {innerText: "Export to Clipboard", onclick: () => {
+        createElement("button", {innerText: "To Clipboard", onclick: () => {
           navigator.clipboard.writeText(JSON.stringify(bike));
           alert("Copied");
         }}),
-        createElement("button", {innerText: "Export to File", onclick: () => {
+        createElement("button", {innerText: "To File", onclick: () => {
           download(JSON.stringify(bike), bike.name + ".json");
         }}),
       ]),
@@ -144,22 +144,25 @@ function renderSettings() {
   }
   for (let pt of pts) content.appendChild(pt);
 
-  content.appendChild(createElement("button", {innerText: "+", onclick: () => {createBike(); renderSettings()}}));
+  content.appendChild(createElement("div", {style: "position: absolute;"}, [
+    createElement("button", {innerText: "+", onclick: () => {createBike(); renderSettings()}}),
 
-  content.appendChild(createElement("button", {innerText: "Export all to Clipboard", onclick: async () => {
-    navigator.clipboard.writeText(JSON.stringify(bikes));
-    alert("Copied");
-  }}));
+    createElement("button", {innerText: "Export all to Clipboard", onclick: async () => {
+      navigator.clipboard.writeText(JSON.stringify(bikes));
+      alert("Copied");
+    }}),
 
-  content.appendChild(createElement("button", {innerText: "Import from Clipboard", onclick: async () => {
-    let data = await navigator.clipboard.readText();
+    createElement("button", {innerText: "Import from Clipboard", onclick: async () => {
+      let data = await navigator.clipboard.readText();
 
-    if (!data) return;
-    
-    data = JSON.parse(data);
+      if (!data) return;
+      
+      data = JSON.parse(data);
 
-    importData(data);
-  }}));
+      importData(data);
+    }}),
+
+  ]));
 }
 
 
